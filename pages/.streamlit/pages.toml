@@ -1,0 +1,14 @@
+[[pages]]
+path = "rapport.py"
+name = "Rapport"
+icon = "📄"
+
+[[pages]]
+path = "analyse.py"
+name = "Analyse"
+icon = ":material/history:"
+
+[[pages]]
+path = "tweets.py"
+name = "Tweets"
+icon = "📖"
