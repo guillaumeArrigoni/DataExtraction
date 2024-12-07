@@ -47,14 +47,14 @@ if tweet_number <= len(tweets_data):
         all_Element = list(tweet_details.keys())
         all_Element = [round(float(conf), 3) for conf in all_Element]
         all_Element.sort()
-        elementAnalysed = "Support"
+        elementAnalysed = "Confidence"
     elif analysis_type == "Confidence":
         # we take all support value to let the user choose one value and display the graph of the evolution of the confidence
         all_Element = []
         for conf_details in tweet_details.values():
             all_Element.extend([int(sup) for sup in conf_details.keys()])
         all_Element = sorted(set(all_Element))
-        elementAnalysed = "Confidence"
+        elementAnalysed = "Support"
     else:
         # default
         all_Element = list(tweet_details.keys())
