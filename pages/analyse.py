@@ -40,26 +40,37 @@ st.markdown("""
 """, unsafe_allow_html=True)
 col0, col1, col00 = st.columns([1, 6, 1])
 all_Element = []
+all_ElementRounded = []
+value_mapping = {}
+elementAnalysed = ""
 if tweet_number <= len(tweets_data):
     tweet_details = tweets_data[f"{tweet_number - 1}"]["details"]
     if analysis_type == "Support":
         # we take all confidence value to let the user choose one value and display the graph of the evolution of the support
         all_Element = list(tweet_details.keys())
-        all_Element = [round(float(conf), 3) for conf in all_Element]
-        all_Element.sort()
+        all_ElementRounded = [round(float(conf), 3) for conf in all_Element]
+        value_mapping = {round_value: original_value for round_value, original_value in
+                         zip(all_ElementRounded, all_Element)}
+        all_ElementRounded.sort()
         elementAnalysed = "Confidence"
     elif analysis_type == "Confidence":
         # we take all support value to let the user choose one value and display the graph of the evolution of the confidence
         all_Element = []
+        all_ElementRounded = []
         for conf_details in tweet_details.values():
-            all_Element.extend([int(sup) for sup in conf_details.keys()])
-        all_Element = sorted(set(all_Element))
+            all_Element.extend(conf_details.keys())
+            all_ElementRounded.extend([int(sup) for sup in conf_details.keys()])
+        value_mapping = {round_value: original_value for round_value, original_value in
+                         zip(all_ElementRounded, all_Element)}
+        all_ElementRounded = sorted(set(all_ElementRounded))
         elementAnalysed = "Support"
     else:
         # default
         all_Element = list(tweet_details.keys())
-        all_Element = [round(float(conf), 3) for conf in all_Element]
-        all_Element.sort()
+        all_ElementRounded = [round(float(conf), 3) for conf in all_Element]
+        value_mapping = {round_value: original_value for round_value, original_value in
+                         zip(all_ElementRounded, all_Element)}
+        all_ElementRounded.sort()
         elementAnalysed = "General"
 
 else:
@@ -76,7 +87,7 @@ def getElementForGraph():  # selected_parameters
         analysis_element = [int(sup) for sup, _ in analysis_counts]
         keyword_counts = [len(details["keywords"]) for sup, details in analysis_counts]
         dictionaryText = {"x": "Support", "y": "Nombre de mots-clés",
-                          "title": f"Analyse pour Confidence = {selected_parameters}"}
+                          "title": f"Analyse pour Confidence = {displayValue}"}
     elif analysis_type == "Confidence":
         analysis_counts = {}
         for conf, conf_details in tweet_details.items():
@@ -85,7 +96,7 @@ def getElementForGraph():  # selected_parameters
         analysis_element = sorted(analysis_counts.keys())
         keyword_counts = [analysis_counts[conf] for conf in analysis_element]
         dictionaryText = {"x": "Confidence", "y": "Nombre de mots-clés",
-                          "title": f"Analyse pour Support = {selected_parameters}"}
+                          "title": f"Analyse pour Support = {displayValue}"}
     return analysis_counts, analysis_element, keyword_counts, dictionaryText
 
 
@@ -93,8 +104,11 @@ with col1:
     if analysis_type == "Support" or analysis_type == "Confidence":
         selected_parameters = st.select_slider(
             f"Sélectionnez une valeur pour la {elementAnalysed}",
-            options=all_Element
+            options=all_ElementRounded
         )
+        displayValue = selected_parameters
+        if selected_parameters in value_mapping:
+            selected_parameters = value_mapping[selected_parameters]
         analysis_counts, analysis_element, keyword_counts, dictionaryText = getElementForGraph()
 
         fig, ax = plt.subplots(figsize=(12, 5))  # Largeur = 8 pouces, hauteur = 5 pouces
